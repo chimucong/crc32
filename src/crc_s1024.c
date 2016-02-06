@@ -1,4 +1,4 @@
-#include "crc_1024.h"
+#include "crc_s1024.h"
 #include <x86intrin.h>
 
 
@@ -75,7 +75,7 @@ const __uint32_t const mul_table_672[256] = {
         0xfe07d63f, 0x1a1025b5, 0x33c447da, 0xd7d3b450, 0x606c8304, 0x847b708e, 0xadaf12e1, 0x49b8e16b
 };
 
-__uint32_t crc_1024(const void *buffer, __uint32_t crc_init) {
+__uint32_t crc_s1024(const void *buffer, __uint32_t crc_init) {
 
     __uint64_t crc0, crc1, crc2, tmp;
     const __uint64_t *p;

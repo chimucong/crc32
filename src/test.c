@@ -1,7 +1,7 @@
 #include <x86intrin.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include "crc_1024.h"
+#include "crc_s1024.h"
 #include "crc_parallel.h"
 
 void print_u32(__uint32_t v) {
@@ -34,7 +34,7 @@ int main() {
         crc = 0;
         gettimeofday(&t1, NULL);
         for (current = 0; current < size; current += 1024) {
-            crc = crc_1024(&data[current], crc);
+            crc = crc_s1024(&data[current], crc);
         }
         gettimeofday(&t2, NULL);
         printf("1024\n");
