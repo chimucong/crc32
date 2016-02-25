@@ -1,6 +1,7 @@
 CC = gcc
 
-CFLAGS = -g -Wall -m64 -mpclmul -msse4.2
+CFLAGS =  -g   -Wall -m64 -mpclmul -msse4.2
+# -Ofast
 
 TARGET = test
 

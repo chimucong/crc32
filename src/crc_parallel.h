@@ -12,6 +12,9 @@ __uint32_t crc_p4(const void *data, size_t size);
 
 __uint32_t crc_p8(const void *data, size_t size);
 
+
+__uint32_t crc_p16(const void *data, size_t size);
+
 __uint32_t crc_p3(const void *data, size_t size);
 
 #endif
