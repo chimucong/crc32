@@ -51,6 +51,7 @@ __uint32_t crc_data(void *data, __uint32_t crc, size_t byte) {
     if (byte >= 2) {
         crc = _mm_crc32_u16(crc, *p16);
         byte -= 2;
+        p16++;
     }
 
     __uint8_t *p8 = (__uint8_t *) p16;
