@@ -5,17 +5,8 @@
 #include "crc_s1024.h"
 #include "crc_s1024_p4_.h"
 #include "crc_parallel.h"
-#include "crc_s2048.h"
 #include <sys/resource.h>
-//#include <time.h>
-//#include <stdlib.h>
-//#include <bits/time.h>
 
-static double seconds() {
-    struct timespec now;
-    clock_gettime(CLOCK_REALTIME, &now);
-    return now.tv_sec + now.tv_nsec / 1000000000.0;
-}
 
 uint64_t GetTimeStamp() {
     struct timeval tv;
@@ -38,15 +29,12 @@ const __uint8_t const *generate_data(size_t size) {
     }
     return data;
 }
-
-static inline uint64_t RDTSC() {
+static inline uint64_t RDTSC()
+{
     unsigned int hi, lo;
     __asm__ volatile("rdtsc" : "=a" (lo), "=d" (hi));
-    return ((uint64_t) hi << 32) | lo;
+    return ((uint64_t)hi << 32) | lo;
 }
-
-
-extern uint32_t calculateCRC32C(const void *buf1, size_t len, uint32_t crc);
 
 void rep(size_t data_size, size_t repeat, __uint8_t const *data) {
     clock();
@@ -55,6 +43,28 @@ void rep(size_t data_size, size_t repeat, __uint8_t const *data) {
 
     __uint32_t crc;
     uint64_t t1, t2;
+
+
+    t1 = RDTSC();
+    for (i = 0; i < repeat; i++) {
+        crc = 0;
+        for (current = 0; current < data_size; current += 8) {
+            crc = (uint32_t) _mm_crc32_u64(crc, *(__uint32_t *) (data + current));
+        }
+        print_u32(crc);
+    }
+    t2 = RDTSC();
+
+    t1 = RDTSC();
+    for (i = 0; i < repeat; i++) {
+        crc = 0;
+        for (current = 0; current < data_size; current += 8) {
+            crc = (uint32_t) _mm_crc32_u64(crc, *(__uint32_t *) (data + current));
+        }
+        print_u32(crc);
+    }
+    t2 = RDTSC();
+    duration[0] += (t2 - t1);
 
 
     t1 = RDTSC();
@@ -94,34 +104,27 @@ void rep(size_t data_size, size_t repeat, __uint8_t const *data) {
 
     t1 = RDTSC();
     for (i = 0; i < repeat; i++) {
-        crc = calculateCRC32C(data, data_size, 0);
-//        crc = crc_p8(data, data_size);
+        crc = crc_p8(data, data_size);
         print_u32(crc);
     }
     t2 = RDTSC();
     t1 = RDTSC();
     for (i = 0; i < repeat; i++) {
-        crc = calculateCRC32C(data, data_size, 0);
-//        crc = crc_p8(data, data_size);
+        crc = crc_p8(data, data_size);
         print_u32(crc);
     }
     t2 = RDTSC();
     duration[3] += (t2 - t1);
-    crc = 0;
+
     t1 = RDTSC();
     for (i = 0; i < repeat; i++) {
-        for (current = 0; current < data_size; current += 2048) {
-            crc = crc_s2048(&data[current], crc);
-        }
+        crc = crc_p16(data, data_size);
         print_u32(crc);
     }
     t2 = RDTSC();
-    crc = 0;
     t1 = RDTSC();
     for (i = 0; i < repeat; i++) {
-        for (current = 0; current < data_size; current += 2048) {
-            crc = crc_s2048(&data[current], crc);
-        }
+        crc = crc_p16(data, data_size);
         print_u32(crc);
     }
     t2 = RDTSC();
@@ -146,27 +149,6 @@ void rep(size_t data_size, size_t repeat, __uint8_t const *data) {
     }
     t2 = RDTSC();
     duration[5] += (t2 - t1);
-
-    t1 = RDTSC();
-    for (i = 0; i < repeat; i++) {
-        crc = 0;
-        for (current = 0; current < data_size; current += 8) {
-            crc = (uint32_t) _mm_crc32_u64(crc, *(__uint64_t *) (data + current));
-        }
-        print_u32(crc);
-    }
-    t2 = RDTSC();
-
-    t1 = RDTSC();
-    for (i = 0; i < repeat; i++) {
-        crc = 0;
-        for (current = 0; current < data_size; current += 8) {
-            crc = (uint32_t) _mm_crc32_u64(crc, *(__uint64_t *) (data));
-        }
-        print_u32(crc);
-    }
-    t2 = RDTSC();
-    duration[0] += (t2 - t1);
 
 
     duration[0] /= repeat;
@@ -201,7 +183,7 @@ int main() {
     size_t i;
     __uint8_t const *data = generate_data(1024L * 1024L);
     for (i = 1; i <= 1024; i++) {
-        rep(2048L * i, 10000, data);
+        rep(1024L * i, 10000, data);
     }
 
 

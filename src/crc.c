@@ -1,4 +1,7 @@
 
+#include <nmmintrin.h>
+#include <bits/types.h>
+
 __uint32_t shift(__uint32_t crc, size_t byte) {
     while (byte > 0) {
         crc = _mm_crc32_u8(crc, 0);

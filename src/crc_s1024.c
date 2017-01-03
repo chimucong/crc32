@@ -1,6 +1,7 @@
 #include "crc_s1024.h"
 #include <x86intrin.h>
 #include <stdio.h>
+#include <stdint.h>
 
 
 #define BLOCK_SIZE 336
